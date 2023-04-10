@@ -9,6 +9,7 @@ import { UsersService } from '../users/users.service';
 import RegisterDto from './dto/register.dto';
 import PostgresErrorCode from 'src/database/postgresErrorCode.enum';
 import TokenPayload from './tokenPayload.interface';
+import hashPassword, { compareHashPassword } from 'src/utils/hashPassword';
 
 @Injectable()
 export class AuthenticationService {
@@ -17,29 +18,8 @@ export class AuthenticationService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
   ) {}
-
-  hashPassword = (password) => {
-    const salt = crypto.randomBytes(16).toString('hex');
-    return {
-      password: crypto
-        .pbkdf2Sync(password, salt, 1000, 64, 'sha512')
-        .toString('hex'),
-      salt: salt,
-    };
-  };
-
-  compareHashPassword = (hashedPassword, password, salt) => {
-    const hash = crypto
-      .pbkdf2Sync(password, salt, 1000, 64, 'sha512')
-      .toString('hex');
-    if (hash === hashedPassword) {
-      return true;
-    }
-    return false;
-  };
-
   public async register(registrationData: RegisterDto) {
-    const hashedPassword = await this.hashPassword(registrationData.password);
+    const hashedPassword = await hashPassword(registrationData.password);
     try {
       const createdUser = await this.usersService.create({
         ...registrationData,
@@ -65,7 +45,7 @@ export class AuthenticationService {
   public async getAuthenticatedUser(email: string, hashedPassword: string) {
     try {
       const user = await this.usersService.getByEmail(email);
-      const isPasswordMatching = await this.compareHashPassword(
+      const isPasswordMatching = await compareHashPassword(
         user.password,
         hashedPassword,
         user.salt,
@@ -94,7 +74,40 @@ export class AuthenticationService {
     )}`;
   }
 
-  public getCookieForLogOut() {
-    return `Authentication=; HttpOnly; Path=/; Max-Age=0`;
+  public getCookiesForLogOut() {
+    return [
+      'Authentication=; HttpOnly; Path=/; Max-Age=0',
+      'Refresh=; HttpOnly; Path=/; Max-Age=0',
+    ];
+  }
+
+  public getCookieWithJwtAccessToken(userId: number) {
+    const payload: TokenPayload = { userId };
+    const token = this.jwtService.sign(payload, {
+      secret: this.configService.get('JWT_ACCESS_TOKEN_SECRET'),
+      expiresIn: `${this.configService.get(
+        'JWT_ACCESS_TOKEN_EXPIRATION_TIME',
+      )}s`,
+    });
+    return `Authentication=${token}; HttpOnly; Path=/; Max-Age=${this.configService.get(
+      'JWT_ACCESS_TOKEN_EXPIRATION_TIME',
+    )}`;
+  }
+
+  public getCookieWithJwtRefreshToken(userId: number) {
+    const payload: TokenPayload = { userId };
+    const token = this.jwtService.sign(payload, {
+      secret: this.configService.get('JWT_REFRESH_TOKEN_SECRET'),
+      expiresIn: `${this.configService.get(
+        'JWT_REFRESH_TOKEN_EXPIRATION_TIME',
+      )}s`,
+    });
+    const cookie = `Refresh=${token}; HttpOnly; Path=/; Max-Age=${this.configService.get(
+      'JWT_REFRESH_TOKEN_EXPIRATION_TIME',
+    )}`;
+    return {
+      cookie,
+      token,
+    };
   }
 }

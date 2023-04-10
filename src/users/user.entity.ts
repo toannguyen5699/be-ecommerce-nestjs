@@ -10,6 +10,8 @@ import {
 
 import Post from 'src/posts/posts.entity';
 import Address from './address.entity';
+import PublicFile from 'src/files/publicFile.entity';
+import PrivateFile from 'src/private-file/privateFile.entity';
 
 @Entity()
 class User {
@@ -28,6 +30,9 @@ class User {
   @Exclude()
   public password: string;
 
+  @Column()
+  public salt: string;
+
   @OneToOne(() => Address, {
     eager: true,
     cascade: true,
@@ -35,11 +40,27 @@ class User {
   @JoinColumn()
   public address: Address;
 
+  @Column({
+    nullable: true,
+  })
+  @Exclude()
+  public currentHashedRefreshToken?: string;
+
+  @Column()
+  public saltCurrentHashedRefreshToken?: string;
+
   @OneToMany(() => Post, (post: Post) => post.author)
   public posts: Post[];
 
-  @Column()
-  public salt: string;
+  @JoinColumn()
+  @OneToOne(() => PublicFile, {
+    eager: true,
+    nullable: true,
+  })
+  public avatar?: PublicFile;
+
+  @OneToMany(() => PrivateFile, (file: PrivateFile) => file.owner)
+  public files: PrivateFile[];
 }
 
 export default User;

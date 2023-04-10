@@ -2,6 +2,7 @@ import { Transform } from 'class-transformer';
 import {
   Column,
   Entity,
+  Index,
   JoinTable,
   ManyToMany,
   ManyToOne,
@@ -26,6 +27,10 @@ class Post {
   @JoinTable()
   public categories?: Category[];
 
+  @Column('text', { array: true })
+  public paragraphs: string[];
+
+  @Index('post_authorId_index')
   @ManyToOne(() => User, (author: User) => author.posts)
   public author: User;
 }

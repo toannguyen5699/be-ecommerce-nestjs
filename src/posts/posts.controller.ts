@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   Req,
   UseFilters,
   UseGuards,
@@ -15,6 +16,7 @@ import RequestWithUser from 'src/authentication/requestWithUser.interface';
 
 import { ExceptionsLoggerFilter } from 'src/utils/exceptionsLogger.filter';
 import FindOneParams from 'src/utils/findOneParams';
+import { PaginationParams } from 'src/utils/types/paginationParams';
 import CreatePostDto from './dto/createPost.dto';
 import { UpdatePostDto } from './dto/updatePost.dto';
 import PostsService from './posts.service';
@@ -49,5 +51,16 @@ export default class PostsController {
   @Delete(':id')
   async deletePost(@Param('id') id: string) {
     this.postsService.deletePost(Number(id));
+  }
+
+  @Get()
+  async getPosts(
+    @Query('search') search: string,
+    @Query() { offset, limit }: PaginationParams,
+  ) {
+    if (search) {
+      return this.postsService.searchForPosts(search);
+    }
+    return this.postsService.getAllPosts();
   }
 }
