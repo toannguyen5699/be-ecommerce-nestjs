@@ -46,7 +46,10 @@ class User {
   @Exclude()
   public currentHashedRefreshToken?: string;
 
-  @Column()
+  @Column({
+    nullable: true,
+  })
+  @Exclude()
   public saltCurrentHashedRefreshToken?: string;
 
   @OneToMany(() => Post, (post: Post) => post.author)
