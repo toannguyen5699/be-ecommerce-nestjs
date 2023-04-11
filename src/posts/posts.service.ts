@@ -14,15 +14,14 @@ import CreatePostDto from './dto/createPost.dto';
 // import Post from './posts.interface';
 import { UpdatePostDto } from './dto/updatePost.dto';
 import User from 'src/users/user.entity';
-import PostsSearchService from './postsSearch.service';
+// import PostsSearchService from './postsSearch.service';
 import PostNotFoundException from './exceptions/postNotFound.exception';
 
 @Injectable()
 export default class PostsService {
   constructor(
     @InjectRepository(PostEntity)
-    private postsRepository: Repository<PostEntity>,
-    private postsSearchService: PostsSearchService,
+    private postsRepository: Repository<PostEntity>, // private postsSearchService: PostsSearchService,
   ) {}
 
   async getAllPosts(offset?: number, limit?: number, startId?: number) {
@@ -85,7 +84,7 @@ export default class PostsService {
       relations: ['author'],
     });
     if (updatedPost) {
-      await this.postsSearchService.update(updatedPost);
+      // await this.postsSearchService.update(updatedPost);
       return updatedPost;
     }
     throw new PostNotFoundException(id);
@@ -96,17 +95,17 @@ export default class PostsService {
     if (!deleteResponse.affected) {
       throw new PostNotFoundException(id);
     }
-    await this.postsSearchService.remove(id);
+    // await this.postsSearchService.remove(id);
   }
 
-  async searchForPosts(text: string) {
-    const results = (await this.postsSearchService.search(text)) as any;
-    const ids = results.map((result) => result.id);
-    if (!ids.length) {
-      return [];
-    }
-    return this.postsRepository.find({
-      where: { id: In(ids) },
-    });
-  }
+  // async searchForPosts(text: string) {
+  //   const results = (await this.postsSearchService.search(text)) as any;
+  //   const ids = results.map((result) => result.id);
+  //   if (!ids.length) {
+  //     return [];
+  //   }
+  //   return this.postsRepository.find({
+  //     where: { id: In(ids) },
+  //   });
+  // }
 }

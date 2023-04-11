@@ -58,9 +58,9 @@ export default class PostsController {
     @Query('search') search: string,
     @Query() { offset, limit }: PaginationParams,
   ) {
-    if (search) {
-      return this.postsService.searchForPosts(search);
-    }
+    // if (search) {
+    //   return this.postsService.searchForPosts(search);
+    // }
     return this.postsService.getAllPosts();
   }
 }
