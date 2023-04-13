@@ -22,9 +22,11 @@
   "dependencies": {
     "@elastic/elasticsearch": "^8.6.0",
     "@hapi/joi": "^17.1.1",
+    "@nestjs-modules/ioredis": "^1.0.1",
     "@nestjs/common": "^9.0.0",
     "@nestjs/config": "^2.3.1",
     "@nestjs/core": "^9.0.0",
+    "@nestjs/cqrs": "^9.0.3",
     "@nestjs/elasticsearch": "^9.0.0",
     "@nestjs/jwt": "^10.0.2",
     "@nestjs/passport": "^9.0.3",

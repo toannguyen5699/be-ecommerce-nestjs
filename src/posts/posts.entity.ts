@@ -6,11 +6,13 @@ import {
   JoinTable,
   ManyToMany,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
 import User from 'src/users/user.entity';
 import Category from 'src/categories/category.entity';
+import Comment from 'src/comment/comment.entity';
 
 @Entity()
 class Post {
@@ -29,6 +31,9 @@ class Post {
 
   // @Column('text', { array: true })
   // public paragraphs: string[];
+
+  @OneToMany(() => Comment, (comment: Comment) => comment.post)
+  public comments: Comment[];
 
   @Index('post_authorId_index')
   @ManyToOne(() => User, (author: User) => author.posts)

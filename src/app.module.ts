@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as Joi from '@hapi/joi';
 import { APP_FILTER } from '@nestjs/core';
+import { RedisModule } from '@nestjs-modules/ioredis';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -36,6 +37,8 @@ import { SearchModule } from './search/search.module';
         JWT_ACCESS_TOKEN_EXPIRATION_TIME: Joi.string().required(),
         JWT_REFRESH_TOKEN_SECRET: Joi.string().required(),
         JWT_REFRESH_TOKEN_EXPIRATION_TIME: Joi.string().required(),
+        REDIS_HOST: Joi.string().required(),
+        REDIS_PORT: Joi.number().required(),
       }),
     }),
     DatabaseModule,
@@ -43,6 +46,15 @@ import { SearchModule } from './search/search.module';
     AuthenticationModule,
     CategoriesModule,
     SearchModule,
+    RedisModule.forRootAsync({
+      useFactory: (configService: ConfigService) => ({
+        config: {
+          url: `redis://${configService.get('REDIS_HOST')}:${configService.get(
+            'REDIS_POST',
+          )}`,
+        },
+      }),
+    }),
     // PrivateFilesModule,
     // FilesModule,
   ],

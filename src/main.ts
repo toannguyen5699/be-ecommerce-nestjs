@@ -6,6 +6,7 @@ import { ConfigService } from '@nestjs/config';
 
 import { AppModule } from './app.module';
 import { ExceptionsLoggerFilter } from './utils/exceptionsLogger.filter';
+import { runInCluster } from './utils/runInCluster';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -24,4 +25,4 @@ async function bootstrap() {
   app.use(cookieParser());
   await app.listen(3000);
 }
-bootstrap();
+runInCluster(bootstrap);
